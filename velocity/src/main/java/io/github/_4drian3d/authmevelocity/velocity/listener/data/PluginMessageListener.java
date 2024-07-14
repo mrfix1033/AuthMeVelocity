@@ -43,19 +43,18 @@ public final class PluginMessageListener implements Listener<PluginMessageEvent>
     @Inject
     private ProxyServer proxy;
     @Inject
-    private EventManager eventManager;
-    @Inject
     private Logger logger;
     @Inject
     private AuthMeVelocityPlugin plugin;
 
     @Override
     public void register() {
-        eventManager.register(plugin, PluginMessageEvent.class, this);
+        proxy.getEventManager().register(plugin, PluginMessageEvent.class, this);
     }
 
     @Override
     public EventTask executeAsync(final PluginMessageEvent event) {
+        EventManager eventManager = proxy.getEventManager();
         return EventTask.async(() -> {
             plugin.logDebug(() -> "PluginMessageEvent | Start");
             if (notAllowedEvent(event)) {
@@ -154,7 +153,7 @@ public final class PluginMessageListener implements Listener<PluginMessageEvent>
             return;
         }
 
-        eventManager.fire(new PreSendOnLoginEvent(player, loginServer, toSend.object()))
+        proxy.getEventManager().fire(new PreSendOnLoginEvent(player, loginServer, toSend.object()))
                 .thenAccept(event -> {
                     if (!event.getResult().isAllowed()) {
                         return;
